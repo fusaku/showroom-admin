@@ -1,0 +1,24 @@
+# Example only. Adjust User, paths and environment file before installation.
+[Unit]
+Description=Showroom administration console
+After=network-online.target
+
+[Service]
+Type=simple
+User=showroom-admin
+WorkingDirectory=/opt/showroom-admin
+EnvironmentFile=/etc/showroom-admin.env
+ExecStart=/opt/showroom-admin/.venv/bin/python -m showroom_admin --host 127.0.0.1 --port 8091
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+StateDirectory=showroom-admin
+ReadWritePaths=/home/ubuntu/showroom/index /var/lib/showroom-admin
+Environment=MEMBER_STATE_DIR=/var/lib/showroom-admin
+Environment=PYTHONDONTWRITEBYTECODE=1
+
+[Install]
+WantedBy=multi-user.target
