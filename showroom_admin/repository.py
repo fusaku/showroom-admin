@@ -90,6 +90,7 @@ class DemoRepository:
                 and (enabled == "" or str(r["enabled"]) == enabled)
                 and (not search or search.casefold() in " ".join(str(r[k]) for k in
                      ("member_id", "name_jp", "name_en", "room_id")).casefold())]
+        rows.sort(key=lambda r: (0 if r["is_live"] == 1 else 1, r["id"]))
         return dict(items=self.snapshot(rows[(page - 1) * page_size:page * page_size]), total=len(rows))
 
     def live(self):
@@ -221,7 +222,7 @@ class OracleRepository:
             with self.read() as conn:
                 total = self.query(conn, "SELECT COUNT(*) AS TOTAL FROM ADMIN.MEMBERS m JOIN ADMIN.GROUPS g ON g.ID=m.GROUP_ID" + where, binds)[0]["total"]
                 items = self.query(conn, self.member_select + where +
-                    " ORDER BY g.NAME, m.NAME_EN, m.ID OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY",
+                    " ORDER BY CASE WHEN ls.IS_LIVE=1 THEN 0 ELSE 1 END, m.ID ASC OFFSET :offset ROWS FETCH NEXT :limit ROWS ONLY",
                     {**binds, "offset":(page-1)*page_size, "limit":page_size})
                 return dict(total=total, items=items)
         return self.cached(("members", search, group, enabled, page, page_size), fetch)

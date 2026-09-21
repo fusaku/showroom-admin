@@ -63,6 +63,20 @@ class AppTests(unittest.TestCase):
         self.assertTrue(all(r['group_name']=='SKE48' and r['enabled']==0 for r in filtered))
         self.assertEqual(self.client.get('/api/members?search=not_a_member').json['data']['total'],0)
 
+    def test_member_order_across_pages_and_filters(self):
+        self.login()
+        self.repo.rows.reverse()
+        expected=[1,3,6,9,14]+[i for i in range(1,37) if i not in (1,3,6,9,14)]
+        actual=[]
+        for page in range(1,4):
+            result=self.client.get('/api/members?page='+str(page)).json['data']
+            actual.extend(row['id'] for row in result['items'])
+        self.assertEqual(actual,expected)
+        filtered=self.client.get('/api/members?group=AKB48').json['data']['items']
+        self.assertEqual([r['id'] for r in filtered],[1,7,13,19,25,31])
+        self.repo.rows[0]['is_live']=None
+        self.assertEqual(self.repo.members(page=3)['items'][-1]['id'],36)
+
     def test_validation_details_and_read_only_routes(self):
         self.login()
         for query in ['page=0','page_size=101','page=no','enabled=2']:

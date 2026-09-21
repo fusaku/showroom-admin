@@ -26,7 +26,7 @@ subprocess.run(args,check=True,cwd=root)
 app=root/'dist'/('macOS-'+platform.machine())/'Showroom 管理.app'
 shutil.copytree(client,app/'Contents/Resources/oracle-client',symlinks=True)
 plist=app/'Contents/Info.plist'
-data=plistlib.loads(plist.read_bytes());data.update(CFBundleShortVersionString='0.4.0',CFBundleVersion='5',LSMinimumSystemVersion='15.0',NSHighResolutionCapable=True)
+data=plistlib.loads(plist.read_bytes());data.update(CFBundleShortVersionString='0.4.1',CFBundleVersion='6',LSMinimumSystemVersion='15.0',NSHighResolutionCapable=True)
 plist.write_bytes(plistlib.dumps(data))
 subprocess.run(['/usr/bin/codesign','--force','--deep','--sign','-',str(app)],check=True)
 subprocess.run(['/usr/bin/codesign','--verify','--deep','--strict',str(app)],check=True)
